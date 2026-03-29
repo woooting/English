@@ -30,6 +30,9 @@ model User {
   address         String? // 地址
   password        String // 密码
   avatar          String? // 头像
+  bio             String? // 签名  第七集新增字段
+  isTimingTask    Boolean          @default(false) // 是否开启定时任务 第七集新增字段
+  timingTaskTime  String           @default("00:00:00") //定时任务时间默认晚上0点开始，每隔24小时执行一次 第七集新增字段
   wordNumber      Int              @default(0) // 单词数量
   dayNumber       Int              @default(0) // 打卡天数
   createdAt       DateTime         @default(now()) // 创建时间

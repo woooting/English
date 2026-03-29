@@ -6,10 +6,16 @@ import type {
   UserRegister,
   Token,
   RefreshTokenPayload,
+  UserUpdate,
 } from '@en/common/user';
+import type { Request } from 'express';
+import { ConfigService } from '@nestjs/config';
+import { MinIoService } from '@libs/shared/min-io/min-io.service';
 import type { Prisma } from '@libs/shared/generated/prisma/client';
 import { AuthService } from '../auth/auth.service';
 import { JwtService } from '@nestjs/jwt';
+import select from './user.select';
+import { userUpdateSelect } from './user.select';
 @Injectable()
 export class UserService {
   constructor(
@@ -17,6 +23,8 @@ export class UserService {
     private response: ResponseService,
     private authService: AuthService,
     private jwtService: JwtService,
+    private MinIoService: MinIoService,
+    private configService: ConfigService,
   ) {}
 
   //登录
@@ -86,17 +94,7 @@ export class UserService {
 
     const newUser = await this.prisma.user.create({
       data,
-      select: {
-        id: true,
-        name: true,
-        phone: true,
-        email: true,
-        address: true,
-        avatar: true,
-        createdAt: true,
-        updatedAt: true,
-        lastLoginAt: true,
-      },
+      select,
     });
     const token = this.authService.generateToken({
       userId: newUser.id,
@@ -133,5 +131,45 @@ export class UserService {
     } catch (error) {
       return this.response.error(null, 'token无效');
     }
+  }
+
+  //上传头像
+  async upoloadAvatar(file: Express.Multer.File) {
+    if (!file) {
+      return this.response.error(null, '请上传图片');
+    }
+    if (file.size > 1024 * 1024 * 5) {
+      return this.response.error(null, '图片大小不能超过5M');
+    }
+    const client = this.MinIoService.getClinet();
+    const bucket = this.MinIoService.getBucket()!;
+    const filename = `${Date.now()}-${file.originalname}`;
+    await client.putObject(bucket, filename, file.buffer, file.size, {
+      'Content-Type': file.mimetype,
+    });
+
+    const isHttps = !!Number(this.configService.get('MINIO_USE_SSL'));
+    const baseUrl = isHttps ? 'https' : 'http';
+    const port = this.configService.get<string>('MINIO_PORT')!;
+    const databaseUrl = `/${bucket}/${filename}`; //数据库url /avatar/1234567890-xiaomansdas.jpg
+    const previewUrl = `${baseUrl}://${this.configService.get('MINIO_ENDPOINT')}:${port}${databaseUrl}`;
+    return this.response.success({
+      databaseUrl,
+      previewUrl,
+    });
+  }
+
+  //用户设置更新
+  async updateUserSetting(updateUserDto: UserUpdate, payload: Request['user']) {
+    const updatedUser = await this.prisma.user.update({
+      where: {
+        id: payload.userId,
+      },
+      data: {
+        ...updateUserDto,
+      },
+      select: userUpdateSelect,
+    });
+    return this.response.success(updatedUser);
   }
 }

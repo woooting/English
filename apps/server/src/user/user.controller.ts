@@ -1,7 +1,18 @@
-import { Controller, Post, Body } from '@nestjs/common';
+import {
+  Controller,
+  Post,
+  Req,
+  Body,
+  UploadedFile,
+  UseInterceptors,
+} from '@nestjs/common';
+import { FileInterceptor } from '@nestjs/platform-express';
 import { UserService } from './user.service';
-import type { UserLogin, UserRegister } from '@en/common/user';
+import type { Request } from 'express';
+import type { UserLogin, UserRegister, UserUpdate } from '@en/common/user';
 import type { Token } from '@en/common/user';
+import { AuthGuard } from '@libs/shared/auth/auth.guard';
+import { UseGuards } from '@nestjs/common';
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
@@ -19,5 +30,18 @@ export class UserController {
   @Post('refresh-token')
   refreshToken(@Body() refreshTokenDto: Omit<Token, 'accessToken'>) {
     return this.userService.refreshToken(refreshTokenDto);
+  }
+
+  @Post('upload-avatar')
+  @UseInterceptors(FileInterceptor('file'))
+  upoloadAvatar(@UploadedFile() file: Express.Multer.File) {
+    return this.userService.upoloadAvatar(file);
+  }
+
+  @Post('update-user')
+  @UseGuards(AuthGuard)
+  updateUser(@Body() updateUserDto: UserUpdate, @Req() req: Request) {
+    const payload = req.user;
+    return this.userService.updateUserSetting(updateUserDto, payload);
   }
 }
