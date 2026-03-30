@@ -25,7 +25,7 @@ import { MinIoModule } from './min-io/min-io.module';
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
         secret: configService.get('SECRET_KEY'),
-        signOptions: { expiresIn: '15s' },
+        signOptions: { expiresIn: '1d' },
       }),
     }),
     ConfigModule.forRoot({
