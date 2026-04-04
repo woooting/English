@@ -63,8 +63,9 @@ export class ChatService implements OnModuleInit {
   }
 
   async findAll(userId: string, role: ChatRoleType) {
+    const id = `${userId}-${role}`;
     const historyMessages = await this.checkpointer.get({
-      configurable: { thread_id: `${userId}-${role}` },
+      configurable: { thread_id: id },
     });
     const list = historyMessages?.channel_values?.messages as AIMessageChunk[];
     //历史记录为空

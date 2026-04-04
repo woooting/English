@@ -1,4 +1,4 @@
-//1.deepseek初始化一下
+//1.deepseek初始化
 import { ChatDeepSeek } from '@langchain/deepseek';
 import { ConfigService } from '@nestjs/config';
 import { PostgresSaver } from '@langchain/langgraph-checkpoint-postgres';

@@ -27,6 +27,9 @@
       ],
       "@libs/shared/*": [
         "libs/shared/src/*"
+      ],
+      "@common/*": [
+        "../packages/common/*"
       ]
     }
   }
