@@ -6,3 +6,5 @@ export * from './response/response.module';
 export * from './response/response.service';
 export * from './interceptor/exceptionFilter';
 export * from './interceptor/interceptor.interceptor';
+export * from './pay/pay.module';
+export * from './pay/pay.service';

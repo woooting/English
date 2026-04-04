@@ -5,6 +5,7 @@ import { ResponseModule } from './response/response.module';
 import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MinIoModule } from './min-io/min-io.module';
+import { PayModule } from './pay/pay.module';
 
 @Global()
 @Module({
@@ -16,6 +17,7 @@ import { MinIoModule } from './min-io/min-io.module';
     JwtModule,
     ConfigModule,
     MinIoModule,
+    PayModule,
   ],
   imports: [
     PrismaModule,
@@ -33,6 +35,7 @@ import { MinIoModule } from './min-io/min-io.module';
       envFilePath: '.env',
     }),
     MinIoModule,
+    PayModule,
   ],
 })
 export class SharedModule {}
