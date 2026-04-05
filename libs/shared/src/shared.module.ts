@@ -6,7 +6,8 @@ import { JwtModule } from '@nestjs/jwt';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { MinIoModule } from './min-io/min-io.module';
 import { PayModule } from './pay/pay.module';
-
+import { EmailModule } from './email/email.module';
+import { BullModule } from '@nestjs/bullmq';
 @Global()
 @Module({
   providers: [SharedService],
@@ -18,6 +19,8 @@ import { PayModule } from './pay/pay.module';
     ConfigModule,
     MinIoModule,
     PayModule,
+    EmailModule,
+    BullModule,
   ],
   imports: [
     PrismaModule,
@@ -36,6 +39,17 @@ import { PayModule } from './pay/pay.module';
     }),
     MinIoModule,
     PayModule,
+    EmailModule,
+    BullModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        connection: {
+          host: configService.get('REDIS_HOST'),
+          port: configService.get('REDIS_PORT'),
+        },
+      }),
+    }),
   ],
 })
 export class SharedModule {}

@@ -29,6 +29,14 @@ export class ChatService implements OnModuleInit {
     //   this.agents.set(mode.role, agent); //将配置存入map
     // }
   }
+
+  /**
+   * 流式完成聊天请求的异步函数
+   * 根据传入的聊天数据创建相应的提示词和AI模型，然后通过代理获取流式响应
+   *
+   * @param createChatDto - 聊天数据传输对象，包含用户请求的相关信息
+   * @returns 返回一个可读流，用于接收AI模型的流式响应
+   */
   async streamCompletion(createChatDto: ChatDto) {
     const defaultPrompt = chatMode.find(
       (item) => item.role === createChatDto.role,
